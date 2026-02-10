@@ -7,7 +7,7 @@ metadata:
     "openclaw":
       {
         "emoji": "🔍",
-        "requires": { "envs": ["JINA_API_KEY"] },
+        "requires": { "env": ["JINA_API_KEY"] },
         "primaryEnv": "JINA_API_KEY"
       }
   }
