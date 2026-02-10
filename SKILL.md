@@ -8,7 +8,8 @@ metadata:
       {
         "emoji": "🔍",
         "requires": { "env": ["JINA_API_KEY"] },
-        "primaryEnv": "JINA_API_KEY"
+        "primaryEnv": "JINA_API_KEY",
+        "files": ["scripts/*"]
       }
   }
 ---
@@ -16,6 +17,10 @@ metadata:
 # Jina AI — Reader, Search & DeepSearch
 
 Web reading and search powered by Jina AI. Requires `JINA_API_KEY` environment variable.
+
+> **Trust & Privacy:** By using this skill, URLs and queries are transmitted to Jina AI (jina.ai). Only install if you trust Jina with your data.
+
+> **Model Invocation:** This skill may be invoked autonomously by the model without explicit user trigger (standard for integration skills). If you prefer manual-only invocation, disable model invocation in your OpenClaw skill settings.
 
 **Get your API key:** https://jina.ai/ → Dashboard → API Keys
 
