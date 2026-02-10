@@ -4,13 +4,13 @@ description: Web reading and searching via Jina AI APIs. Fetch clean markdown fr
 homepage: "https://github.com/adhishthite/jina-ai-skill"
 metadata:
   {
-    "openclaw":
+    "clawdbot":
       {
         "emoji": "🔍",
         "requires": { "env": ["JINA_API_KEY"] },
         "primaryEnv": "JINA_API_KEY",
-        "files": ["scripts/*"]
-      }
+        "files": ["scripts/*"],
+      },
   }
 ---
 
