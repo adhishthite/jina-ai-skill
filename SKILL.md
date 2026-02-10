@@ -1,6 +1,7 @@
 ---
 name: jina
 description: Web reading and searching via Jina AI APIs. Fetch clean markdown from URLs (r.jina.ai), web search (s.jina.ai), or deep multi-step research (DeepSearch).
+homepage: https://github.com/adhishthite/jina-ai-skill
 metadata:
   {
     "openclaw":
@@ -15,6 +16,28 @@ metadata:
 # Jina AI — Reader, Search & DeepSearch
 
 Web reading and search powered by Jina AI. Requires `JINA_API_KEY` environment variable.
+
+## External Endpoints
+
+This skill calls the following Jina AI endpoints only:
+
+| Endpoint | URL | Data Sent |
+|----------|-----|-----------|
+| **Reader** | `https://r.jina.ai/{url}` | Target URL + JINA_API_KEY (auth header) |
+| **Search** | `https://s.jina.ai/{query}` | Search query + JINA_API_KEY (auth header) |
+| **DeepSearch** | `https://deepsearch.jina.ai/v1/chat/completions` | Research question + JINA_API_KEY (auth header) |
+
+No other external calls are made. No local files are read or transmitted.
+
+## Security & Privacy
+
+- **Only `JINA_API_KEY`** is transmitted (via `Authorization: Bearer` header)
+- URLs and search queries you provide are sent to Jina's servers for processing
+- **No local files** are read, modified, or transmitted by any script
+- **No other env vars** are accessed — scripts only read `JINA_API_KEY`
+- **No data is persisted** locally beyond stdout output
+- Cookie forwarding (`X-Set-Cookie`) is documented but **opt-in only** — never sent by default
+- All scripts are auditable shell/Python with no obfuscation
 
 **Get your API key:** https://jina.ai/ → Dashboard → API Keys
 

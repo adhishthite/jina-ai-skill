@@ -1,4 +1,8 @@
 #!/usr/bin/env bash
+# External endpoint: https://deepsearch.jina.ai/v1/chat/completions
+# Data sent: Research question (argument) + JINA_API_KEY (auth header)
+# Data received: Multi-step research response
+# No local files read or modified. No other env vars accessed.
 # jina-deepsearch.sh — Deep research via Jina DeepSearch API
 # Usage: jina-deepsearch.sh "<question>"
 
