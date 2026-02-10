@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
-# External endpoint: https://s.jina.ai/ (Jina Search API)
-# Data sent: Search query (argument) + JINA_API_KEY (auth header)
-# Data received: Search results as structured text
-# No local files read or modified. No other env vars accessed.
 # jina-search.sh — Web search via Jina Search API
+#
+# External endpoint: https://s.jina.ai/ (Jina Search API)
+# Data sent: Search query provided as argument + JINA_API_KEY via Authorization header
+# Data received: Markdown text with search results and extracted content
+# No local files are read or modified
+#
 # Usage: jina-search.sh "<query>" [--json]
 
 set -euo pipefail

@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-# External endpoint: https://r.jina.ai/ (Jina Reader API)
-# Data sent: URL (argument) + JINA_API_KEY (auth header)
-# Data received: Clean markdown text from the URL
-# No local files read or modified. No other env vars accessed.
 """
 jina-reader.py — Read any URL via Jina Reader API.
+
+External endpoint: https://r.jina.ai/ (Jina Reader API)
+Data sent: URL provided as argument + JINA_API_KEY via Authorization header
+Data received: Markdown text content extracted from the URL
+No local files are read or modified
 
 Usage:
     python3 jina-reader.py <url> [--json]
