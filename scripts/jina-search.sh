@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 # jina-search.sh — Web search via Jina Search API
 #
-# External endpoint: https://s.jina.ai/ (Jina Search API)
-# Data sent: Search query provided as argument + JINA_API_KEY via Authorization header
-# Data received: Markdown text with search results and extracted content
-# No local files are read or modified
+# SECURITY MANIFEST:
+#   Environment variables accessed: JINA_API_KEY (only)
+#   External endpoints called: https://s.jina.ai/ (only)
+#   Local files read: none
+#   Local files written: none
+#   Data sent: Search query provided as argument + JINA_API_KEY via Authorization header
+#   Data received: Markdown/JSON search results via stdout
 #
 # Usage: jina-search.sh "<query>" [--json]
 
@@ -39,8 +42,8 @@ if [[ "${2:-}" == "--json" ]]; then
   ACCEPT="application/json"
 fi
 
-# URL-encode the query (replace spaces with +)
-ENCODED_QUERY=$(echo "$QUERY" | sed 's/ /+/g')
+# URL-encode the query safely to prevent shell injection
+ENCODED_QUERY=$(printf '%s' "$QUERY" | python3 -c 'import sys, urllib.parse; print(urllib.parse.quote(sys.stdin.read().strip(), safe=""))')
 
 response=$(curl -s -w "\n%{http_code}" "https://s.jina.ai/${ENCODED_QUERY}" \
   -H "Authorization: Bearer $JINA_API_KEY" \

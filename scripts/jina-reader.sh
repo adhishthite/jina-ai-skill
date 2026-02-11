@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 # jina-reader.sh — Read any URL via Jina Reader API
 #
-# External endpoint: https://r.jina.ai/ (Jina Reader API)
-# Data sent: URL provided as argument + JINA_API_KEY via Authorization header
-# Data received: Markdown text content extracted from the URL
-# No local files are read or modified
+# SECURITY MANIFEST:
+#   Environment variables accessed: JINA_API_KEY (only)
+#   External endpoints called: https://r.jina.ai/ (only)
+#   Local files read: none
+#   Local files written: none
+#   Data sent: URL provided as argument + JINA_API_KEY via Authorization header
+#   Data received: Markdown/JSON content via stdout
 #
 # Usage: jina-reader.sh <url> [--json]
 
@@ -34,7 +37,10 @@ if [[ "${2:-}" == "--json" ]]; then
   ACCEPT="application/json"
 fi
 
-response=$(curl -s -w "\n%{http_code}" "https://r.jina.ai/${URL}" \
+# Sanitize URL: percent-encode to prevent shell injection via $() or backticks
+SAFE_URL=$(printf '%s' "$URL" | python3 -c 'import sys, urllib.parse; print(urllib.parse.quote(sys.stdin.read().strip(), safe=":/?#[]@!$&'\''()*+,;=-._~%"))')
+
+response=$(curl -s -w "\n%{http_code}" "https://r.jina.ai/${SAFE_URL}" \
   -H "Authorization: Bearer $JINA_API_KEY" \
   -H "Accept: $ACCEPT")
 
