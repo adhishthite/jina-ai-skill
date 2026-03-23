@@ -34,13 +34,14 @@ fi
 
 QUESTION="$1"
 
-# Escape the question for JSON
+# Escape the question and API key for JSON
 JSON_QUESTION=$(printf '%s' "$QUESTION" | python3 -c 'import sys,json; print(json.dumps(sys.stdin.read()))')
+JSON_KEY=$(printf '%s' "$TAVILY_API_KEY" | python3 -c 'import sys,json; print(json.dumps(sys.stdin.read()))')
 
 response=$(curl -s -w "\n%{http_code}" "https://api.tavily.com/search" \
   -H "Content-Type: application/json" \
   -d "{
-    \"api_key\": \"${TAVILY_API_KEY}\",
+    \"api_key\": ${JSON_KEY},
     \"query\": ${JSON_QUESTION},
     \"search_depth\": \"advanced\",
     \"max_results\": 5,

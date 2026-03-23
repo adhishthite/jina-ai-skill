@@ -7,7 +7,7 @@ metadata:
     "clawdbot":
       {
         "emoji": "🔍",
-        "requires": { "env": ["JINA_API_KEY", "TAVILY_API_KEY"] },
+        "requires": { "env": ["JINA_API_KEY"] },
         "primaryEnv": "JINA_API_KEY",
         "files": ["scripts/*"],
       },
@@ -40,7 +40,7 @@ No other external network calls are made by this skill.
 
 ## Security & Privacy
 
-- **Authentication:** Only your `JINA_API_KEY` is transmitted to Jina's servers (via `Authorization` header)
+- **Authentication:** `JINA_API_KEY` is sent to Jina servers via `Authorization` header; `TAVILY_API_KEY` is sent to Tavily servers in the JSON request body (only when `SEARCH_PROVIDER=tavily`)
 - **Data sent:** URLs and search queries you provide are sent to Jina's servers for processing
 - **Local files:** No local files are read or transmitted by this skill
 - **Local storage:** No data is stored locally beyond stdout output
@@ -56,7 +56,7 @@ No other external network calls are made by this skill.
 | **DeepSearch** | `https://deepsearch.jina.ai/v1/chat/completions` | Multi-step research agent |
 | **Tavily Search** | `https://api.tavily.com/search` | Tavily web search (when `SEARCH_PROVIDER=tavily`) |
 
-All endpoints accept `Authorization: Bearer $JINA_API_KEY`.
+All Jina endpoints accept `Authorization: Bearer $JINA_API_KEY`. The Tavily endpoint uses `api_key` in the JSON request body instead.
 
 ---
 

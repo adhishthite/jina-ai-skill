@@ -37,13 +37,14 @@ if [[ "${2:-}" == "--json" ]]; then
   OUTPUT_JSON=true
 fi
 
-# Escape the query for JSON
+# Escape the query and API key for JSON
 JSON_QUERY=$(printf '%s' "$QUERY" | python3 -c 'import sys,json; print(json.dumps(sys.stdin.read()))')
+JSON_KEY=$(printf '%s' "$TAVILY_API_KEY" | python3 -c 'import sys,json; print(json.dumps(sys.stdin.read()))')
 
 response=$(curl -s -w "\n%{http_code}" "https://api.tavily.com/search" \
   -H "Content-Type: application/json" \
   -d "{
-    \"api_key\": \"${TAVILY_API_KEY}\",
+    \"api_key\": ${JSON_KEY},
     \"query\": ${JSON_QUERY},
     \"search_depth\": \"advanced\",
     \"max_results\": 10
