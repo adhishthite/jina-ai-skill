@@ -19,6 +19,10 @@
 *.log
 logs/
 
+# Python bytecode
+__pycache__/
+*.py[cod]
+
 # Temporary files
 tmp/
 temp/

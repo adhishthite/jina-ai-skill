@@ -9,6 +9,7 @@ metadata:
         "emoji": "🔍",
         "requires": { "env": ["JINA_API_KEY"] },
         "primaryEnv": "JINA_API_KEY",
+        "optionalEnv": ["TAVILY_API_KEY", "READER_PROVIDER"],
         "files": ["scripts/*"],
       },
   }
@@ -17,6 +18,7 @@ metadata:
 # Jina AI — Reader, Search & DeepSearch
 
 Web reading and search powered by Jina AI. Requires `JINA_API_KEY` environment variable.
+Optionally supports Tavily Extract as an alternative reader backend — set `READER_PROVIDER=tavily` and provide `TAVILY_API_KEY`.
 
 > **Trust & Privacy:** By using this skill, URLs and queries are transmitted to Jina AI (jina.ai). Only install if you trust Jina with your data.
 
@@ -31,6 +33,7 @@ This skill makes HTTP requests to the following external endpoints only:
 | Endpoint | URL Pattern | Purpose |
 |----------|-------------|---------|
 | **Reader API** | `https://r.jina.ai/{url}` | Sends URL content request to Jina for conversion to markdown |
+| **Tavily Extract API** | `https://api.tavily.com/extract` | Sends URL(s) to Tavily for LLM-optimised content extraction (when `READER_PROVIDER=tavily`) |
 | **Search API** | `https://s.jina.ai/{query}` | Sends search query to Jina for web search results |
 | **DeepSearch API** | `https://deepsearch.jina.ai/v1/chat/completions` | Sends research question to Jina for multi-step research |
 
@@ -42,7 +45,7 @@ No other external network calls are made by this skill.
 - **Data sent:** URLs and search queries you provide are sent to Jina's servers for processing
 - **Local files:** No local files are read or transmitted by this skill
 - **Local storage:** No data is stored locally beyond stdout output
-- **Environment access:** Scripts only access the `JINA_API_KEY` environment variable; no other env vars are read
+- **Environment access:** Scripts access `JINA_API_KEY`, and optionally `TAVILY_API_KEY` and `READER_PROVIDER` environment variables; no other env vars are read
 - **Cookies:** Cookies are not forwarded by default; the `X-Set-Cookie` header is available for authenticated content but is opt-in only
 
 ## Endpoints
@@ -76,6 +79,28 @@ curl -s "https://r.jina.ai/https://example.com" \
 ```
 
 Or use the helper script: `scripts/jina-reader.sh <url> [--json]`
+
+### Tavily Extract (alternative reader)
+
+Set `READER_PROVIDER=tavily` to use Tavily Extract API instead of Jina Reader. Tavily Extract returns clean text content optimised for LLM ingestion.
+
+**Trade-offs:**
+- Tavily Extract is optimised for speed and LLM-ready content
+- Jina Reader supports JS-heavy rendering, PDF parsing, and screenshot output
+- Jina Reader remains the default; Tavily is opt-in via `READER_PROVIDER=tavily`
+
+```bash
+# Using Tavily Extract via the reader script
+READER_PROVIDER=tavily scripts/jina-reader.sh https://example.com
+
+# JSON output
+READER_PROVIDER=tavily scripts/jina-reader.sh https://example.com --json
+
+# Python
+READER_PROVIDER=tavily python3 scripts/jina-reader.py https://example.com
+```
+
+Requires `TAVILY_API_KEY` environment variable. Get your key at https://app.tavily.com
 
 ### Parameters (via headers or query params)
 
@@ -219,7 +244,7 @@ Use for complex research requiring multiple sources and reasoning chains.
 | `scripts/jina-reader.sh` | Read any URL as markdown |
 | `scripts/jina-search.sh` | Web search |
 | `scripts/jina-deepsearch.sh` | Deep multi-step research |
-| `scripts/jina-reader.py` | Python reader (no deps beyond stdlib) |
+| `scripts/jina-reader.py` | Python reader (no deps beyond stdlib), supports Tavily via READER_PROVIDER |
 
 ---
 
@@ -234,6 +259,14 @@ Use for complex research requiring multiple sources and reasoning chains.
 - Search: https://s.jina.ai/docs
 - OpenAPI specs: https://r.jina.ai/openapi.json | https://s.jina.ai/openapi.json
 
+## Environment Variables
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `JINA_API_KEY` | Yes (for Jina) | API key for Jina AI services |
+| `TAVILY_API_KEY` | Yes (for Tavily) | API key for Tavily Extract (get at https://app.tavily.com) |
+| `READER_PROVIDER` | No | Reader backend: `jina` (default) or `tavily` |
+
 ## When to Use
 
 | Need | Use |
@@ -242,5 +275,6 @@ Use for complex research requiring multiple sources and reasoning chains.
 | Web search | **Search** — LLM-friendly results |
 | Complex multi-source research | **DeepSearch** |
 | Parse a PDF from URL | **Reader** — pass PDF URL directly |
+| Fast LLM-optimised URL extraction | **Tavily Extract** — `READER_PROVIDER=tavily` |
 | Screenshot a page | **Reader** with `X-Respond-With: screenshot` |
 | Extract structured data | **Reader** with `jsonSchema` param |
