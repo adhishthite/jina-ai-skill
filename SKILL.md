@@ -7,7 +7,7 @@ metadata:
     "clawdbot":
       {
         "emoji": "🔍",
-        "requires": { "env": ["JINA_API_KEY"] },
+        "requires": { "env": ["JINA_API_KEY", "TAVILY_API_KEY"] },
         "primaryEnv": "JINA_API_KEY",
         "files": ["scripts/*"],
       },
@@ -17,8 +17,9 @@ metadata:
 # Jina AI — Reader, Search & DeepSearch
 
 Web reading and search powered by Jina AI. Requires `JINA_API_KEY` environment variable.
+Optionally supports **Tavily Search** as a parallel search provider — set `SEARCH_PROVIDER=tavily` and provide `TAVILY_API_KEY`.
 
-> **Trust & Privacy:** By using this skill, URLs and queries are transmitted to Jina AI (jina.ai). Only install if you trust Jina with your data.
+> **Trust & Privacy:** By using this skill, URLs and queries are transmitted to Jina AI (jina.ai) or Tavily (tavily.com) depending on your configured provider. Only install if you trust these services with your data.
 
 > **Model Invocation:** This skill may be invoked autonomously by the model without explicit user trigger (standard for integration skills). If you prefer manual-only invocation, disable model invocation in your OpenClaw skill settings.
 
@@ -33,6 +34,7 @@ This skill makes HTTP requests to the following external endpoints only:
 | **Reader API** | `https://r.jina.ai/{url}` | Sends URL content request to Jina for conversion to markdown |
 | **Search API** | `https://s.jina.ai/{query}` | Sends search query to Jina for web search results |
 | **DeepSearch API** | `https://deepsearch.jina.ai/v1/chat/completions` | Sends research question to Jina for multi-step research |
+| **Tavily Search API** | `https://api.tavily.com/search` | Sends search query to Tavily (when `SEARCH_PROVIDER=tavily`) |
 
 No other external network calls are made by this skill.
 
@@ -42,7 +44,7 @@ No other external network calls are made by this skill.
 - **Data sent:** URLs and search queries you provide are sent to Jina's servers for processing
 - **Local files:** No local files are read or transmitted by this skill
 - **Local storage:** No data is stored locally beyond stdout output
-- **Environment access:** Scripts only access the `JINA_API_KEY` environment variable; no other env vars are read
+- **Environment access:** Scripts access `JINA_API_KEY`, `TAVILY_API_KEY`, and `SEARCH_PROVIDER` environment variables; no other env vars are read
 - **Cookies:** Cookies are not forwarded by default; the `X-Set-Cookie` header is available for authenticated content but is opt-in only
 
 ## Endpoints
@@ -52,6 +54,7 @@ No other external network calls are made by this skill.
 | **Reader** | `https://r.jina.ai/{url}` | Convert any URL → clean markdown |
 | **Search** | `https://s.jina.ai/{query}` | Web search with LLM-friendly results |
 | **DeepSearch** | `https://deepsearch.jina.ai/v1/chat/completions` | Multi-step research agent |
+| **Tavily Search** | `https://api.tavily.com/search` | Tavily web search (when `SEARCH_PROVIDER=tavily`) |
 
 All endpoints accept `Authorization: Bearer $JINA_API_KEY`.
 
@@ -217,8 +220,10 @@ Use for complex research requiring multiple sources and reasoning chains.
 | Script | Purpose |
 |--------|---------|
 | `scripts/jina-reader.sh` | Read any URL as markdown |
-| `scripts/jina-search.sh` | Web search |
-| `scripts/jina-deepsearch.sh` | Deep multi-step research |
+| `scripts/jina-search.sh` | Web search (dispatches to Tavily when `SEARCH_PROVIDER=tavily`) |
+| `scripts/jina-deepsearch.sh` | Deep multi-step research (dispatches to Tavily when `SEARCH_PROVIDER=tavily`) |
+| `scripts/tavily-search.sh` | Web search via Tavily API |
+| `scripts/tavily-deepsearch.sh` | Deep research via Tavily API (advanced search with raw content) |
 | `scripts/jina-reader.py` | Python reader (no deps beyond stdlib) |
 
 ---
@@ -233,6 +238,40 @@ Use for complex research requiring multiple sources and reasoning chains.
 - Reader: https://jina.ai/reader
 - Search: https://s.jina.ai/docs
 - OpenAPI specs: https://r.jina.ai/openapi.json | https://s.jina.ai/openapi.json
+
+## Tavily Search (Alternative Provider)
+
+Set `SEARCH_PROVIDER=tavily` and provide `TAVILY_API_KEY` to use Tavily instead of Jina for search and deep research.
+
+**Get your API key:** https://app.tavily.com (1,000 free credits/month)
+
+### Search
+
+```bash
+SEARCH_PROVIDER=tavily scripts/jina-search.sh "your query" [--json]
+# Or call directly:
+scripts/tavily-search.sh "your query" [--json]
+```
+
+### Deep Research
+
+```bash
+SEARCH_PROVIDER=tavily scripts/jina-deepsearch.sh "your research question"
+# Or call directly:
+scripts/tavily-deepsearch.sh "your research question"
+```
+
+Tavily deep research uses `search_depth=advanced` with `include_raw_content=true` to retrieve full page content for synthesis.
+
+### Environment Variables
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `JINA_API_KEY` | Yes (for Jina) | — | Jina AI API key |
+| `TAVILY_API_KEY` | Yes (for Tavily) | — | Tavily API key |
+| `SEARCH_PROVIDER` | No | `jina` | Search backend: `jina` or `tavily` |
+
+---
 
 ## When to Use
 

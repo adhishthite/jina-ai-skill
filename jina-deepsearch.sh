@@ -1,17 +1,33 @@
 #!/usr/bin/env bash
-# jina-deepsearch.sh — Deep research via Jina DeepSearch API
+# jina-deepsearch.sh — Deep research via Jina DeepSearch API (or Tavily when SEARCH_PROVIDER=tavily)
 #
 # SECURITY MANIFEST:
-#   Environment variables accessed: JINA_API_KEY (only)
-#   External endpoints called: https://deepsearch.jina.ai/v1/chat/completions (only)
+#   Environment variables accessed: JINA_API_KEY, TAVILY_API_KEY, SEARCH_PROVIDER
+#   External endpoints called: https://deepsearch.jina.ai/v1/chat/completions (jina) or https://api.tavily.com/search (tavily)
 #   Local files read: none
 #   Local files written: none
-#   Data sent: Research question provided as argument + JINA_API_KEY via Authorization header
+#   Data sent: Research question provided as argument + API key via header/body
 #   Data received: JSON response with research answer (content extracted to stdout)
 #
 # Usage: jina-deepsearch.sh "<question>"
+# Set SEARCH_PROVIDER=tavily to use Tavily instead of Jina DeepSearch.
 
 set -euo pipefail
+
+SEARCH_PROVIDER="${SEARCH_PROVIDER:-jina}"
+
+# Dispatch to Tavily if selected
+if [[ "$SEARCH_PROVIDER" == "tavily" ]]; then
+  SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+  if [[ -x "$SCRIPT_DIR/scripts/tavily-deepsearch.sh" ]]; then
+    exec "$SCRIPT_DIR/scripts/tavily-deepsearch.sh" "$@"
+  elif [[ -x "$SCRIPT_DIR/tavily-deepsearch.sh" ]]; then
+    exec "$SCRIPT_DIR/tavily-deepsearch.sh" "$@"
+  else
+    echo "Error: tavily-deepsearch.sh not found." >&2
+    exit 1
+  fi
+fi
 
 if [[ -z "${JINA_API_KEY:-}" ]]; then
   echo "Error: JINA_API_KEY environment variable is not set." >&2

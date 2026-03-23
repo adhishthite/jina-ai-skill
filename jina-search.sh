@@ -1,17 +1,33 @@
 #!/usr/bin/env bash
-# jina-search.sh — Web search via Jina Search API
+# jina-search.sh — Web search via Jina Search API (or Tavily when SEARCH_PROVIDER=tavily)
 #
 # SECURITY MANIFEST:
-#   Environment variables accessed: JINA_API_KEY (only)
-#   External endpoints called: https://s.jina.ai/ (only)
+#   Environment variables accessed: JINA_API_KEY, TAVILY_API_KEY, SEARCH_PROVIDER
+#   External endpoints called: https://s.jina.ai/ (jina) or https://api.tavily.com/search (tavily)
 #   Local files read: none
 #   Local files written: none
-#   Data sent: Search query provided as argument + JINA_API_KEY via Authorization header
+#   Data sent: Search query provided as argument + API key via header/body
 #   Data received: Markdown/JSON search results via stdout
 #
 # Usage: jina-search.sh "<query>" [--json]
+# Set SEARCH_PROVIDER=tavily to use Tavily instead of Jina.
 
 set -euo pipefail
+
+SEARCH_PROVIDER="${SEARCH_PROVIDER:-jina}"
+
+# Dispatch to Tavily if selected
+if [[ "$SEARCH_PROVIDER" == "tavily" ]]; then
+  SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+  if [[ -x "$SCRIPT_DIR/scripts/tavily-search.sh" ]]; then
+    exec "$SCRIPT_DIR/scripts/tavily-search.sh" "$@"
+  elif [[ -x "$SCRIPT_DIR/tavily-search.sh" ]]; then
+    exec "$SCRIPT_DIR/tavily-search.sh" "$@"
+  else
+    echo "Error: tavily-search.sh not found." >&2
+    exit 1
+  fi
+fi
 
 if [[ -z "${JINA_API_KEY:-}" ]]; then
   echo "Error: JINA_API_KEY environment variable is not set." >&2
