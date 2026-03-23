@@ -45,8 +45,8 @@ if [[ "$READER_PROVIDER" == "tavily" ]]; then
     exit 1
   fi
 
-  # Build JSON payload for Tavily Extract API
-  payload=$(printf '{"urls":["%s"]}' "$URL")
+  # Build JSON payload safely (handles quotes, backslashes, newlines in URL)
+  payload=$(printf '%s' "$URL" | python3 -c 'import sys, json; print(json.dumps({"urls": [sys.stdin.read().strip()]}))')
 
   response=$(curl -s -w "\n%{http_code}" "https://api.tavily.com/extract" \
     -X POST \
